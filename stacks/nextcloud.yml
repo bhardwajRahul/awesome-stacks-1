@@ -40,27 +40,7 @@ services:
       - traefik
 
   app:
-    image: nextcloud:${VERSION:-24-fpm-alpine}
-    command:
-      - /bin/sh
-      - -c
-      - |
-        sleep 10
-        apk add --no-cache sudo supervisor
-        sed -i -e s/\$${PHP_MEMORY_LIMIT}/2048M/g /usr/local/etc/php/conf.d/nextcloud.ini
-        sudo -u www-data php occ --no-warnings db:add-missing-indices -q
-        sudo -u www-data php occ --no-warnings db:add-missing-columns -q
-        sudo -u www-data php occ --no-warnings db:add-missing-primary-keys -q
-        sudo -u www-data php occ --no-warnings db:convert-filecache-bigint -q
-        sudo -u www-data php occ --no-warnings background:cron
-        sudo -u www-data php occ --no-warnings config:system:set force_language --value=$${FORCE_LANGUAGE}
-        sudo -u www-data php occ --no-warnings config:system:set default_phone_region --value=$${FORCE_LANGUAGE}
-        sudo -u www-data php occ --no-warnings app:install richdocuments
-        sudo -u www-data php occ --no-warnings app:enable --force richdocuments
-        sudo -u www-data php occ --no-warnings config:app:set richdocuments wopi_url --value="${SCHEME:-https}://${DOMAIN:-nextcloud.localhost}"
-        wget -O /supervisord.conf https://raw.githubusercontent.com/nextcloud/docker/master/.examples/dockerfiles/cron/fpm-alpine/supervisord.conf
-        mkdir /var/log/supervisord /var/run/supervisord
-        /usr/bin/supervisord -c /supervisord.conf
+    image: nextcloud:${VERSION:-25-fpm-alpine}
     environment:
       - DOMAIN=${DOMAIN:-nextcloud.localhost}
       - MYSQL_HOST=mariadb
@@ -110,7 +90,7 @@ services:
       - internal
 
   # collabora:
-    # image: collabora/code:6.4.10.10
+    # image: collabora/code:6.4.14.3
     # environment:
       # - extra_params=--o:ssl.enable=false --o:ssl.termination=true
       # - SLEEPFORDEBUGGER=0
